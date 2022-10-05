@@ -1,3 +1,4 @@
+import HeaderLayout from "../../layout";
 import { useState, useEffect } from "react";
 import { ModalRegister, DrawerList } from "../../components";
 import { get } from "../../service";
@@ -7,8 +8,12 @@ const Chat = () => {
   const [users, setUsers] = useState([]);
 
   const fetchUsers = async () => {
-    const response = await get("/user");
-    console.log(response)
+    const { id } = JSON.parse(localStorage.getItem("user"));
+
+    const response = await get(`/user/${id}`);
+
+    //const response = await get("/user");
+    //console.log(response)
     setUsers(response.data);
   }
 
@@ -29,10 +34,10 @@ const Chat = () => {
   }, []);
 
   return (
-    <div>
+    <HeaderLayout>
       {users.length > 0 && <DrawerList users={users} />}
       <ModalRegister fetchUsers={fetchUsers} />
-    </div>
+    </HeaderLayout>
   );
 };
 
