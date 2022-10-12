@@ -1,15 +1,26 @@
 import { useState } from "react";
 import { Layout, List } from "antd";
-import { data } from "./data";
+//import { data } from "./data";
 import EmptyChat from "../EmptyChat";
 import MessageList from "../Messages";
+import { get } from "../../service";
 
 const DrawerList = ({ users }) => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const [showMessages, setShowMessages] = useState(false);
 
+  const [messages, setMessages] = useState([]);
+
   const { Sider, Content } = Layout;
+
+  const { id } = JSON.parse(localStorage.getItem("user"));
+
+  const fetchMessage = async (item) => {
+    const response = await get(`/message/${id}/${item.id}`);
+    console.log(response.data);
+    setMessages(response.data);
+  };
 
   return (
     <Layout>
@@ -28,9 +39,10 @@ const DrawerList = ({ users }) => {
           dataSource={users}
           renderItem={(item) => (
             <List.Item
-              onClick={() => {
+              onClick={ async () => {
                 setShowMessages(true);
-                setSelectedUser(item)
+                setSelectedUser(item);
+                await fetchMessage(item);
               }}
               style={{
                 cursor: "pointer",
@@ -54,7 +66,15 @@ const DrawerList = ({ users }) => {
         />
       </Sider>
       <Layout>
-        <Content>{showMessages ? <MessageList user={selectedUser} /> : <EmptyChat />}</Content>
+        <Content>{showMessages ? (
+        <MessageList 
+        user={selectedUser}
+        messages={messages}
+        fetchMessage={fetchMessage}
+         />
+         ) : (
+         <EmptyChat />
+         )}</Content>
       </Layout>
     </Layout>
   );
